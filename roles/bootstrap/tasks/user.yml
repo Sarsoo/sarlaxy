@@ -1,7 +1,7 @@
 - name: Add aj User
   become: true
   ansible.builtin.import_role:
-    name: user
+    name: sarsoo.infra.user
   vars:
     user_name: aj
     user_groups:
