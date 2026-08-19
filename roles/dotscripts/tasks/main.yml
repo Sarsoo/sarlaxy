@@ -1,0 +1,50 @@
+- name: User info
+  ansible.builtin.user:
+    name: "{{ dotscripts_user | default(ansible_user_id, true) }}"
+  register: dotscripts_user_info
+
+- name: Set User Variables
+  ansible.builtin.set_fact:
+    dotscripts_user_diff: "{{ dotscripts_user_info.name != ansible_user_id }}"
+
+- name: Add scripts repo to safe directories
+  become: "{{ dotscripts_user_diff }}"
+  when: dotscripts_user_diff
+  community.general.git_config:
+    name: safe.directory
+    add_mode: add
+    scope: global
+    value: "{{ dotscripts_user_info.home }}/scripts"
+
+- name: Checkout scripts
+  become: "{{ dotscripts_user_diff }}"
+  ansible.builtin.git:
+    repo: https://github.com/Sarsoo/scripts.git
+    dest: "{{ dotscripts_user_info.home }}/scripts"
+    accept_newhostkey: true
+    force: true
+    version: master
+  notify:
+    - Chown scripts
+
+- name: Add dotfiles repo to safe directories
+  become: "{{ dotscripts_user_diff }}"
+  when: dotscripts_user_diff
+  community.general.git_config:
+    name: safe.directory
+    add_mode: add
+    scope: global
+    value: "{{ dotscripts_user_info.home }}/dotfiles"
+
+- name: Checkout dotfiles
+  become: "{{ dotscripts_user_diff }}"
+  ansible.builtin.git:
+    repo: https://github.com/Sarsoo/dotfiles.git
+    dest: "{{ dotscripts_user_info.home }}/dotfiles"
+    accept_newhostkey: true
+    force: true
+    version: master
+  notify:
+    - Chown dotfiles
+    - Init dotfiles (via su)
+    - Init dotfiles (direct)

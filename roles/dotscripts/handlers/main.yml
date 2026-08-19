@@ -1,0 +1,30 @@
+- name: Chown scripts
+  become: true
+  when: dotscripts_user_diff
+  ansible.builtin.file:
+    path: "{{ dotscripts_user_info.home }}/scripts"
+    recurse: true
+    owner: "{{ dotscripts_user_info.name }}"
+    group: "{{ dotscripts_user_info.group }}"
+
+- name: Chown dotfiles
+  become: true
+  when: dotscripts_user_diff
+  ansible.builtin.file:
+    path: "{{ dotscripts_user_info.home }}/dotfiles"
+    recurse: true
+    owner: "{{ dotscripts_user_info.name }}"
+    group: "{{ dotscripts_user_info.group }}"
+
+- name: Init dotfiles (via su)
+  when: dotscripts_user_diff
+  become: true
+  ansible.builtin.shell: "su -c '{{ dotscripts_user_info.home }}/dotfiles/init.sh' {{ dotscripts_user_info.name }}"
+  args:
+    executable: /bin/bash
+
+- name: Init dotfiles (direct)
+  when: not dotscripts_user_diff
+  ansible.builtin.shell: "{{ dotscripts_user_info.home }}/dotfiles/init.sh"
+  args:
+    executable: /bin/bash
