@@ -1,0 +1,21 @@
+- name: Update Packages | Debian
+  become: true
+  ansible.builtin.apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86400 #One day
+
+- name: Autoclean Packages | Debian
+  become: true
+  ansible.builtin.apt:
+    autoclean: yes
+
+- name: Autoremove Packages | Debian
+  become: true
+  ansible.builtin.apt:
+    autoremove: yes
+
+- name: Clean Package Cache | Debian
+  become: true
+  ansible.builtin.apt:
+    clean: yes

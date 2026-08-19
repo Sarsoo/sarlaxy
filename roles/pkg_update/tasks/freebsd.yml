@@ -1,0 +1,8 @@
+
+- name: Update Packages & Autoremove | BSD
+  become: true
+  community.general.pkgng:
+    autoremove: yes
+    name: "*"
+    state: latest
+    

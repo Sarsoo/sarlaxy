@@ -1,0 +1,12 @@
+
+- name: Update Packages | Fedora
+  become: true
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+    update_cache: true
+
+- name: Autoremove Packages | Fedora
+  become: true
+  ansible.builtin.dnf:
+    autoremove: yes

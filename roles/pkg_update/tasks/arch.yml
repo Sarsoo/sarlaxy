@@ -1,0 +1,11 @@
+
+- name: Update Packages | Arch
+  become: true
+  pacman:
+    upgrade: yes
+    update_cache: yes
+
+- name: Upgrade AUR Packages | Arch
+  kewlfft.aur.aur:
+    upgrade: yes
+    aur_only: yes

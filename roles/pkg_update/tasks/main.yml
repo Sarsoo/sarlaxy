@@ -1,0 +1,20 @@
+
+- name: Update Packages Debian
+  import_tasks: debian.yml
+  when: ansible_facts['os_family']|lower == 'debian'
+
+- name: Update Packages Arch
+  import_tasks: arch.yml
+  when: (ansible_facts['os_family']|lower == 'arch') or (ansible_facts['os_family']|lower == 'archlinux')
+
+- name: Update Packages Fedora
+  import_tasks: fedora.yml
+  when: (ansible_facts['os_family']|lower == 'redhat')
+
+- name: Update Packages FreeBSD
+  import_tasks: freebsd.yml
+  when: ansible_facts['os_family']|lower == 'freebsd'
+
+- name: Update Packages Alpine
+  import_tasks: alpine.yml
+  when: ansible_facts['os_family']|lower == 'alpine'
