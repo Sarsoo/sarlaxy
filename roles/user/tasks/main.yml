@@ -1,0 +1,103 @@
+- name: Set Variables
+  ansible.builtin.set_fact:
+    __authorised_keys: "{{ ([lookup('file', 'pubkeys')] if user_include_default_keys else []) + user_authorised_keys }}"
+
+- name: Set Variables | Debian
+  when: ansible_facts['os_family']|lower == 'debian'
+  ansible.builtin.set_fact:
+    user_shell: /usr/bin/bash
+
+- name: Set Variables | Fedora
+  when: ansible_facts['os_family']|lower == 'redhat'
+  ansible.builtin.set_fact:
+    user_shell: /usr/bin/bash
+
+- name: Set Variables | Alpine
+  when: ansible_facts['os_family']|lower == 'alpine'
+  ansible.builtin.set_fact:
+    user_shell: /bin/bash
+
+- name: Set Variables | FreeBSD
+  when: ansible_facts['os_family']|lower == 'freebsd'
+  ansible.builtin.set_fact:
+    user_shell: /bin/csh
+
+# - name: Print the gateway for each host when defined
+#   ansible.builtin.debug:
+#     msg: System {{ __authorised_keys }}, {{ user_shell }}
+
+- name: Ensure /usr/bin/bash in Shells
+  when: user_ensure_bash and (ansible_facts['os_family']|lower != 'alpine')
+  ansible.builtin.lineinfile:
+    path: /etc/shells
+    line: /usr/bin/bash
+
+- name: Add groups
+  ansible.builtin.group:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ user_groups }}"
+
+- name: Add User
+  when: ansible_facts['os_family']|lower != 'alpine'
+  ansible.builtin.user:
+    name: "{{ user_name }}"
+    groups: "{{ user_groups | default(omit) }}"
+    append: "{{ true if user_groups else omit }}"
+    password_lock: "{{ user_passwordless }}"
+    shell: "{{ user_shell }}"
+    generate_ssh_key: true
+    createhome: true
+
+- name: Add User | Alpine
+  when: ansible_facts['os_family']|lower == 'alpine'
+  ansible.builtin.user:
+    name: "{{ user_name }}"
+    groups: "{{ user_groups | default(omit) }}"
+    append: "{{ true if user_groups else omit }}"
+    password: "*"
+    shell: "{{ user_shell }}"
+    generate_ssh_key: true
+    createhome: true
+
+- name: Set SSH
+  ansible.posix.authorized_key:
+    user: "{{ user_name }}"
+    key: "{{ __authorised_keys | join('\n') }}"
+    state: present
+    exclusive: true
+
+- name: Check for loginctl
+  ansible.builtin.command: command -v loginctl
+  register: user_loginctl_check
+  failed_when: false
+  changed_when: false
+
+- name: Set linger
+  when: user_loginctl_check.rc == 0
+  become: true
+  block:
+    - name: Enable Linger for user {{ user_name }}
+      when: user_linger
+      ansible.builtin.command:
+        argv:
+          - /usr/bin/loginctl
+          - enable-linger
+          - "{{ user_name }}"
+        creates: "/var/lib/systemd/linger/{{ user_name }}"
+
+    - name: Disable Linger for user {{ user_name }}
+      when: not user_linger
+      ansible.builtin.command:
+        argv:
+          - /usr/bin/loginctl
+          - disable-linger
+          - "{{ user_name }}"
+        removes: "/var/lib/systemd/linger/{{ user_name }}"
+
+- name: Init dotfiles & scripts
+  ansible.builtin.import_role:
+    name: dotscripts
+  vars:
+    dotscripts_user: "{{ user_name }}"
+  tags: dot

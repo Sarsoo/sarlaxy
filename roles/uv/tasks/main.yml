@@ -1,0 +1,33 @@
+- name: UV Facts
+  set_facts:
+    __uv_user: "{{ uv_user | default(ansible_user, true) }}"
+
+- name: User info
+  ansible.builtin.user:
+    name: "{{ uv_user }}"
+  register: uv_user_info
+
+- name: Install uv
+  ansible.builtin.shell:
+    cmd: "set -o pipefail && curl --proto '=https' --tlsv1.2 -LsSf https://releases.astral.sh/github/uv/releases/download/{{ uv_version }}/uv-installer.sh | env UV_INSTALL_DIR='{{ uv_user_info.home }}/.local/bin/uv_{{ uv_version }}' UV_NO_MODIFY_PATH=1 sh"
+    executable: /bin/bash
+  args:
+    creates: "{{ uv_user_info.home }}/.local/bin/uv_{{ uv_version }}/uv"
+
+- name: Create live uv link
+  ansible.builtin.file:
+    src: "{{ uv_user_info.home }}/.local/bin/uv_{{ uv_version }}/uv"
+    dest: "{{ uv_user_info.home }}/.local/bin/uv"
+    owner: "{{ uv_user_info.name }}"
+    group: "{{ uv_user_info.group }}"
+    force: true
+    state: link
+
+- name: Create live uv link
+  ansible.builtin.file:
+    src: "{{ uv_user_info.home }}/.local/bin/uv_{{ uv_version }}/uvx"
+    dest: "{{ uv_user_info.home }}/.local/bin/uvx"
+    owner: "{{ uv_user_info.name }}"
+    group: "{{ uv_user_info.group }}"
+    force: true
+    state: link
