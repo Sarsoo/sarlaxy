@@ -1,0 +1,48 @@
+- name: Copy Root Cert | Arch
+  become: true
+  when: (ansible_facts['os_family']|lower == 'arch') or (ansible_facts['os_family']|lower == 'archlinux')
+  ansible.builtin.copy:
+    src: sarsooRoot.crt
+    dest: /etc/ca-certificates/trust-source/anchors/sarsooRoot.crt
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Load Certs | Arch
+
+- name: Copy Root Cert | Debian
+  become: true
+  when: ansible_facts['os_family']|lower == 'debian'
+  ansible.builtin.copy:
+    src: sarsooRoot.crt
+    dest: /usr/local/share/ca-certificates/sarsooRoot.crt
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Load Certs | Debian
+
+- name: Copy Root Cert | Fedora
+  become: true
+  when: ansible_facts['os_family']|lower == 'redhat'
+  ansible.builtin.copy:
+    src: sarsooRoot.crt
+    dest: /etc/pki/ca-trust/source/anchors/sarsooRoot.crt
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Load Certs | Fedora
+
+- name: Copy Root Cert | Alpine
+  become: true
+  when: ansible_facts['os_family']|lower == 'alpine'
+  ansible.builtin.copy:
+    src: sarsooRoot.crt
+    dest: /usr/local/share/ca-certificates/sarsooRoot.crt
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Load Certs | Alpine
+
+- name: Join Domain
+  ansible.builtin.import_tasks: ipa.yml
+  when: domain_join
+  become: true

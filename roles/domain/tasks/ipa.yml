@@ -1,0 +1,3 @@
+- name: IPA Client Role
+  ansible.builtin.import_role:
+    name: freeipa.ansible_freeipa.ipaclient

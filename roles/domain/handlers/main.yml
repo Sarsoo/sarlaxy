@@ -1,0 +1,20 @@
+
+- name: Load Certs | Arch
+  become: true
+  when: (ansible_facts['os_family']|lower == 'arch') or (ansible_facts['os_family']|lower == 'archlinux')
+  ansible.builtin.command: update-ca-trust extract
+
+- name: Load Certs | Debian
+  become: true
+  when: ansible_facts['os_family']|lower == 'debian'
+  ansible.builtin.command: update-ca-certificates
+
+- name: Load Certs | Fedora
+  become: true
+  when: ansible_facts['os_family']|lower == 'redhat'
+  ansible.builtin.command: update-ca-trust
+
+- name: Load Certs | Alpine
+  become: true
+  when: ansible_facts['os_family']|lower == 'alpine'
+  ansible.builtin.command: update-ca-certificates
