@@ -1,0 +1,12 @@
+[Unit]
+Description=Periodic backup - {{ backup_script_cron_name }}
+After=network.target
+
+[Service]
+Type=oneshot
+WorkingDirectory={{ backup_script_cron_backup_script_path }}
+ExecStart={{ backup_script_cron_backup_script_path }}/{{ backup_script_cron_backup_script_file_name }}
+User={{ backup_script_cron_backup_user }}
+
+[Install]
+WantedBy=multi-user.target

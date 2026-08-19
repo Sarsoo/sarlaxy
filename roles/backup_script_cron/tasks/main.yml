@@ -1,0 +1,65 @@
+- name: Check for systemctl
+  ansible.builtin.command: command -v systemctl
+  register: backup_script_cron_systemctl_check
+  failed_when: false
+  changed_when: false
+
+- name: Set Backup Facts
+  ansible.builtin.set_fact:
+    __backup_script_cron_backup_type: "{{ 'cron' if backup_script_cron_systemctl_check.rc > 0 else backup_script_cron_backup_type }}"
+
+- name: Template Backup Script
+  become: true
+  ansible.builtin.copy:
+    content: "{{ backup_script_cron_backup_script_content }}"
+    dest: "{{ backup_script_cron_backup_script_path }}/{{ backup_script_cron_backup_script_file_name }}"
+    owner: "{{ backup_script_cron_backup_user }}"
+    group: "{{ backup_script_cron_backup_user }}"
+    mode: u=rwx,g=r,o=
+
+- name: Init cron
+  when: __backup_script_cron_backup_type == 'cron'
+  block:
+    - name: Cron backup Script
+      become: true
+      ansible.builtin.cron:
+        name: "backup_{{ backup_script_cron_name }}"
+        user: "{{ backup_script_cron_backup_user }}"
+        job: "{{ backup_script_cron_backup_script_path }}/{{ backup_script_cron_backup_script_file_name }}"
+
+        day: "*/{{ backup_script_cron_backup_day_period }}"
+        hour: "{{ backup_script_cron_backup_hour }}"
+        minute: "{{ backup_script_cron_backup_minute }}"
+
+- name: Init systemd timer
+  when: __backup_script_cron_backup_type == 'systemd'
+  become: true
+  block:
+    - name: Remove cron
+      ansible.builtin.cron:
+        name: "backup_{{ backup_script_cron_name }}"
+        state: "absent"
+        user: "{{ backup_script_cron_backup_user }}"
+
+    - name: Template Backup Timer
+      ansible.builtin.template:
+        src: backup.timer
+        dest: /etc/systemd/system/backup-{{ backup_script_cron_name }}.timer
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+
+    - name: Template Backup Service
+      ansible.builtin.template:
+        src: backup.service
+        dest: /etc/systemd/system/backup-{{ backup_script_cron_name }}.service
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+
+    - name: Enable Backup Timer
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+        name: backup-{{ backup_script_cron_name }}.timer
+        state: started
+        enabled: true

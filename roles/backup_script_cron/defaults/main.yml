@@ -1,0 +1,13 @@
+---
+backup_script_cron_name: ""
+backup_script_cron_backup_script_content: ""
+backup_script_cron_backup_script_path: ""
+backup_script_cron_backup_script_file_name: ""
+backup_script_cron_backup_user: ""
+
+backup_script_cron_backup_type: "systemd"
+
+backup_script_cron_backup_day_period: ""
+backup_script_cron_backup_hour: ""
+backup_script_cron_backup_minute: ""
+backup_script_cron_backup_second: "0"

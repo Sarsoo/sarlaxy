@@ -1,0 +1,10 @@
+[Unit]
+Description=Periodic backup - {{ backup_script_cron_name }}
+Requires=backup-{{ backup_script_cron_name }}.service
+
+[Timer]
+OnCalendar=*-*-1/{{ backup_script_cron_backup_day_period }} {{ backup_script_cron_backup_hour }}:{{ backup_script_cron_backup_minute }}:{{ backup_script_cron_backup_second }}
+Persistent=true
+
+[Install]
+WantedBy=timers.target
