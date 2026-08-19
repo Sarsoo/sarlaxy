@@ -1,0 +1,96 @@
+- name: Arch
+  ansible.builtin.import_tasks: arch.yml
+  when: (ansible_facts['os_family']|lower == 'arch') or (ansible_facts['os_family']|lower == 'archlinux')
+  become: true
+
+- name: Debian
+  ansible.builtin.import_tasks: debian.yml
+  when: ansible_facts['os_family']|lower == 'debian'
+  become: true
+
+- name: Fedora
+  ansible.builtin.import_tasks: fedora.yml
+  when: ansible_facts['os_family']|lower == 'redhat'
+  become: true
+
+- name: Alpine
+  ansible.builtin.import_tasks: alpine.yml
+  when: ansible_facts['os_family']|lower == 'alpine'
+
+- name: FreeBSD
+  ansible.builtin.import_tasks: freebsd.yml
+  when: ansible_facts['os_family']|lower == 'freebsd'
+  become: true
+
+##################
+#     SUDO
+##################
+
+- name: Add wheel group
+  become: true
+  ansible.builtin.group:
+    name: wheel
+    state: present
+
+- name: Allow wheel group to have passwordless sudo | Linux
+  when: (ansible_facts['os_family']|lower != 'freebsd') and (ansible_facts['os_family']|lower != 'alpine')
+  become: true
+  community.general.sudoers:
+    name: wheel
+    state: present
+    group: wheel
+    runas: ALL
+    commands: ALL
+
+- name: Set Hostname
+  become: true
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: User
+  ansible.builtin.import_tasks: user.yml
+
+- name: Add Root SSH Keys
+  become: true
+  when: "'proxmox_nodes' not in group_names"
+  ansible.posix.authorized_key:
+    user: root
+    key: "{{ lookup('ansible.builtin.template', 'pubkeys_root') }}"
+    state: present
+    exclusive: true
+
+- name: Init dotfiles & scripts
+  ansible.builtin.import_role:
+    name: sarsoo.infra.dotscripts
+  vars:
+    dotscripts_user: root
+  tags: dot
+
+- name: Install Root Cert
+  become: true
+  ansible.builtin.import_role:
+    name: sarsoo.infra.domain
+
+##################
+#   IP FORWARD
+##################
+
+- name: Enable and persist ip forwarding
+  when: "'ipforward' in group_names"
+  become: true
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    state: present
+    sysctl_set: yes
+    reload: yes
+
+- name: Increase Multicast Groups
+  when: "'multicast' in group_names"
+  become: true
+  ansible.posix.sysctl:
+    name: net.ipv4.igmp_max_memberships
+    value: "50"
+    state: present
+    sysctl_set: true
+    reload: true

@@ -1,0 +1,13 @@
+- name: Install Packages | BSD
+  community.general.pkgng:
+    name:
+      - sudo
+      - git
+      - vim
+      - tmux
+      - py39-ranger
+      - htop
+      - ncdu
+      - python
+      - curl
+    state: latest

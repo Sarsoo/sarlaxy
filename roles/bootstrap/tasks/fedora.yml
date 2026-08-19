@@ -1,0 +1,22 @@
+- name: Install Packages | Fedora
+  ansible.builtin.dnf:
+    pkg:
+      - sudo
+      - git
+      - vim
+      - tmux
+      - ranger
+      - htop
+      - nmap
+      - ncdu
+      - make
+      - python3
+      - python3-pip
+      - python3-setuptools
+      - python3-libdnf5
+      - iotop
+      - bind-utils
+      - rsync
+      - curl
+      - dnf-plugins-core
+      - kitty-terminfo

@@ -1,0 +1,46 @@
+- name: Install Packages | Alpine
+  community.general.apk:
+    name:
+      - doas
+      - doas-sudo-shim
+      - ca-certificates
+      - tmux
+      - curl
+      - vim
+      - neovim
+      - ranger
+      - htop
+      - bash
+      - python3
+      - py3-requests
+      - rsync
+      - curl
+      - git
+      - kitty-terminfo
+
+- name: Enable local service | Alpine
+  ansible.builtin.service:
+    name: local
+    enabled: true
+
+- name: Allow wheel group to have passwordless doas | Alpine
+  ansible.builtin.copy:
+    content: "permit nopass :wheel
+
+      "
+    dest: /etc/doas.d/60-wheel.conf
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+
+- name: Ensure shared root mount | Alpine
+  become: true
+  when: bootstrap_alpine_shared_root
+  ansible.builtin.copy:
+    content: |
+      #!/bin/sh
+      mount --make-rshared /
+    dest: /etc/local.d/10-mount.start
+    group: root
+    owner: root
+    mode: u=rwx,g=rx,o=rx

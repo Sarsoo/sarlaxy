@@ -1,0 +1,28 @@
+- name: Add aj User
+  become: true
+  ansible.builtin.import_role:
+    name: user
+  vars:
+    user_name: aj
+    user_groups:
+      - wheel
+      - adm
+    user_ensure_bash: true
+
+- name: Add rx to User Group for Home
+  become: true
+  ansible.builtin.file:
+    path: /home/aj
+    owner: aj
+    group: aj
+    state: directory
+    mode: "0750"
+
+- name: Set bash profile
+  become: true
+  ansible.builtin.copy:
+    src: bash_profile
+    dest: /home/aj/.bash_profile
+    mode: "644"
+    owner: aj
+    group: aj

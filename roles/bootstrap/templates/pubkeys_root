@@ -1,0 +1,15 @@
+###########################
+#     AJ ENDPOINTS
+###########################
+# termix
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICbxmv3YzqHdcI9vwNsoA4XoulepIBVFTHsVV+/VbF6d andy@termix
+# macbook
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDwlqJ2ybEcPkI6QExtkJm5yoOuS8NpNLBYzxL0hboaVxjqjDjWrKQ/SNY1ai2j3ZiI4pa9nsF8bquLzrU+vY+uVsZLu4XtqOalp6ECOwlLqzlYyU8a14g3DmRHJXJmbXBifIXqONasM+4yxT03RCHiCgYw06NOkjTQVud6u1rTTy1IcXfRoOaPuCwydasa0uoGmuRTK/WFS1jRmsKFWXIwTtdAeh9pa02c8eP+sln6R6tHWfPruk2G6pcMIdB/lKvGC/lppLp2i3lEdPtbEeh0jKbCvV9RDtd0Xz2yMbKeFokMhhNu9YN/7sTOHw/iqKzEq06izCG6vF6EwGXN8f/FAtLd+5DsoPEGNw3uXq6aVmCN6NAMTbD9JHSJ7Lhu45HSepKyfFvJK2CcpfveETiA8LsiO1dTsNlwLk1uOOiX+jiV1t/XNUKuO/PdOpondo4f4vVpMpIfzv67OAb7/Qu8itsAqh+I0NgDL4C7fO6R0vPlUtAOcSdlR3kUY+y2Z0= andy@mac-air-2020-native
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILO/8ur7m+NSmEEVnXCxdhDExl9dNyML6mhl+BPIvuFk andy@mac-air-2020-asahi
+###########################
+#   MACHINE-TO-MACHINE
+###########################
+{% if root_ssh_biggie_access %}
+# biggie backups
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCuHVAX4uOW/rdjW+E+gS3pk3ZAEobw9Ktbp9wIlhRizlA2Z44efPNwszv+2+vZ7CxZINPZZqUs1YPcFWUQ4SyIwBOJIosO82jXr81U4O3XHVRXlUbG5g8piWKXzj9truPHuB+BxHbe46Lnj8UtIjHREzhxa/kQ56neOhNXyNmuUU6ZJYdSjT8ttm/LEc+XCAjTrqbhvgCxozApp+ilZvtx7mLO/dbje0QPZsu8r3OYII8dfqj6O+DDg1E6BxWemPfDYp67l/pd7JBhj0ql1yA/nnFAVpX9VAR/H2PXmzVLeqyXkCr+sUaysgATV1ahUqP4cwu1v87ikKW+XV3SSBBWFgybw48RRFY+jU/HNJ6B66pepNq2KytpVzh8TQgGHBQXrZ6TRBOfMmevy0cv7T106EH2gcmFU18bquiYdLncVNSD5ezy4xAdDYq0ZB/rW1eYWlavCfYvYyvUuy6CXe/JCl7MD6F32RvEkQDh/8CEvd2d9bILACfg02t2dMAEk3lxKvsnpdrzmrQ1gMGVqSCo5UL3AlK4LtBNnwzXo4oDdYvgg0Y19tq8QGN0B++/+BYhLNjReH497tUR5p0T1blMcBmjhtyt12e3Ucb277GOgVXaIOxJM1jGQ7qL56dQlgKHXnpGzT+cdZskCpTt01Z/wiX2J/GYZXYnp2tw8DhSaQ== root@biggie
+{% endif %}

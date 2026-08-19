@@ -1,0 +1,22 @@
+- name: Install Packages | Debian
+  ansible.builtin.apt:
+    update_cache: true
+    pkg:
+      - sudo
+      - git
+      - tmux
+      - vim
+      - neovim
+      - ranger
+      - htop
+      - nmap
+      - ncdu
+      - python3-pip
+      - traceroute
+      - iotop
+      - dnsutils
+      - cron
+      - bzip2
+      - rsync
+      - curl
+      - kitty-terminfo
