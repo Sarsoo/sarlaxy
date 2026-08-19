@@ -97,7 +97,7 @@
 
 - name: Init dotfiles & scripts
   ansible.builtin.import_role:
-    name: dotscripts
+    name: sarsoo.infra.dotscripts
   vars:
     dotscripts_user: "{{ user_name }}"
   tags: dot
