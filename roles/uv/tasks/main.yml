@@ -1,10 +1,6 @@
-- name: UV Facts
-  set_facts:
-    __uv_user: "{{ uv_user | default(ansible_user, true) }}"
-
 - name: User info
   ansible.builtin.user:
-    name: "{{ uv_user }}"
+    name: "{{ uv_user | default(ansible_user, true) }}"
   register: uv_user_info
 
 - name: Install uv
