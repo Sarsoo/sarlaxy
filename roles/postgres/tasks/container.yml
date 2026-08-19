@@ -1,0 +1,18 @@
+- name: Render docker compose
+  ansible.builtin.set_fact:
+    postgres_compose: "{{ lookup('ansible.builtin.template', 'docker-compose.yml') }}"
+    postgres_backup: "{{ lookup('ansible.builtin.template', 'backup_container.sh') }}"
+
+- name: Init Postgres Docker Compose
+  ansible.builtin.import_role:
+    name: sarsoo.infra.compose
+  vars:
+    compose_owner: "{{ postgres_owner_info.name }}"
+    compose_backup_user: "{{ postgres_backup_user_info.name }}"
+    compose_ws: "{{ postgres_ws }}"
+    compose_file: "{{ postgres_compose }}"
+    compose_backup_script: "{{ postgres_backup }}"
+    compose_name: "postgres"
+    compose_backup_day_period: "3"
+    compose_backup_hour: "3"
+    compose_backup_minute: "0"

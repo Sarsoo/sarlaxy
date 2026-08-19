@@ -1,0 +1,10 @@
+[Unit]
+Description={{ timer_description }}
+Requires={{ service_name }}.service
+
+[Timer]
+OnCalendar={{ day_of_week }} 04:30:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

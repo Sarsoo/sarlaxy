@@ -1,0 +1,24 @@
+- name: Create workspace
+  ansible.builtin.file:
+    path: "{{ postgres_owner_info.home }}/{{ postgres_ws }}"
+    state: directory
+    mode: "0770"
+
+- name: Template Backup Script
+  become: true
+  ansible.builtin.template:
+    src: backup_native.sh
+    dest: "{{ postgres_owner_info.home }}/{{ postgres_ws }}/backup.sh"
+    owner: "{{ postgres_backup_user_info.name }}"
+    group: "{{ postgres_backup_user_info.group }}"
+    mode: u=rwx,g=r,o=
+
+- name: Cron backup Script
+  become: true
+  ansible.builtin.cron:
+    name: "backup_postgres"
+    day: "{{ postgres_backup_cron_day }}"
+    hour: "{{ postgres_backup_cron_hour }}"
+    minute: "{{ postgres_backup_cron_minute }}"
+    user: "{{ postgres_backup_user_info.name }}"
+    job: "{{ postgres_owner_info.home }}/{{ postgres_ws }}/backup.sh"

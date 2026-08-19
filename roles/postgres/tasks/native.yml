@@ -1,0 +1,135 @@
+- name: Init Locale
+  ansible.builtin.import_role:
+    name: sarsoo.infra.locale
+
+- name: Install Postgres | Debian
+  when: ansible_facts['os_family']|lower == 'debian'
+  become: true
+  ansible.builtin.apt:
+    pkg:
+      - acl
+      - locales
+      - postgresql
+      - libpq-dev
+      - python3-psycopg2
+      - pg-activity
+      - pgcli
+
+- name: Collect PostgreSQL version and extensions
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_info:
+    filter: ver*
+  register: postgres_info
+
+- name: Configure PGBackRest
+  when: postgres_pgbackrest
+  ansible.builtin.import_tasks: native_pgbackrest.yml
+
+- name: Install PGVector | Debian
+  when: ansible_facts['os_family']|lower == 'debian' and postgres_pgvector
+  become: true
+  ansible.builtin.apt:
+    pkg:
+      - postgresql-{{ postgres_info.version.major }}-pgvector
+
+- name: Copy postgresql.conf
+  become: true
+  ansible.builtin.template:
+    src: postgresql.conf
+    dest: /etc/postgresql/{{ postgres_info.version.major }}/main/postgresql.conf
+    owner: postgres
+    group: postgres
+    mode: u=rw,g=r,o=r
+  notify: Restart Postgres
+
+- name: Copy pg_hba.conf
+  become: true
+  ansible.builtin.template:
+    src: pg_hba.conf
+    dest: /etc/postgresql/{{ postgres_info.version.major }}/main/pg_hba.conf
+    owner: postgres
+    group: postgres
+    mode: u=rw,g=r,o=
+  notify: SIGHUP Postgres
+
+- name: Add backup user
+  become: true
+  become_user: postgres
+  when: postgres_backup_user
+  community.postgresql.postgresql_user:
+    name: "{{ postgres_backup_user }}"
+    state: present
+
+- name: Add roles
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_user:
+    name: "{{ item.name }}"
+    role_attr_flags: NOLOGIN
+    no_password_changes: true
+    state: present
+  loop: "{{ postgres_roles }}"
+
+- name: Add users
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_user:
+    name: "{{ item.name }}"
+    no_password_changes: true
+    state: present
+  loop: "{{ postgres_users }}"
+
+- name: Grant role memberships
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_membership:
+    group: "{{ item.name }}"
+    target_roles: "{{ item.members }}"
+    state: present
+  loop: "{{ postgres_roles }}"
+
+- name: Grant role memberships
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_membership:
+    group: "{{ item.name }}"
+    target_roles: "{{ item.members }}"
+    state: present
+  loop: "{{ postgres_role_memberships }}"
+
+- name: Grant backup user memberships
+  become: true
+  become_user: postgres
+  when: postgres_backup_user
+  community.postgresql.postgresql_membership:
+    group: "{{ item.name }}"
+    target_roles: "{{ postgres_backup_user }}"
+    state: present
+  loop: "{{ postgres_users }}"
+
+- name: Create databases
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_db:
+    name: "{{ item.name }}"
+    owner: "{{ item.owner }}"
+    encoding: "{{ postgres_encoding }}"
+    lc_collate: "{{ postgres_lc_collate }}"
+    lc_ctype: "{{ postgres_lc_ctype }}"
+    template: "{{ postgres_template }}"
+  loop: "{{ postgres_databases }}"
+
+- name: Add PGVector Extension
+  become: true
+  become_user: postgres
+  when: postgres_pgvector
+  community.postgresql.postgresql_ext:
+    name: vector
+    login_db: "{{ item }}"
+    state: present
+  loop: "{{ postgres_pgvector_databases }}"
+
+- name: Configure Backup
+  when: postgres_pgdump
+  ansible.builtin.import_tasks: native_backup.yml

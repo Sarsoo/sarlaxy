@@ -1,0 +1,18 @@
+---
+- name: User info
+  ansible.builtin.user:
+    name: "{{ postgres_owner | default(ansible_user_id, true) }}"
+  register: postgres_owner_info
+
+- name: Backup User info
+  ansible.builtin.user:
+    name: "{{ postgres_backup_user | default(ansible_user_id, true) }}"
+  register: postgres_backup_user_info
+
+- name: Ensure Postgres | Native
+  ansible.builtin.import_tasks: native.yml
+  when: postgres_native
+
+- name: Ensure Postgres | Container
+  ansible.builtin.import_tasks: container.yml
+  when: postgres_container

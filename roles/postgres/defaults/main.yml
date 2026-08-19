@@ -1,0 +1,66 @@
+---
+postgres_ws: postgres
+postgres_backup_ws: postgres
+postgres_native: false
+postgres_container: false
+
+postgres_owner: ""
+postgres_backup_user: ""
+postgres_allowed_cidrs: []
+
+postgres_pgdump: true
+postgres_pgbackrest: true
+postgres_pgbackrest_retention_full: 4
+postgres_pgbackrest_retention_diff: 14
+postgres_pgbackrest_retention_archive_type: diff
+postgres_pgbackrest_retention_archive: 2
+postgres_pgvector: false
+postgres_pgvector_databases: []
+postgres_encoding: ""
+postgres_lc_collate: ""
+postgres_lc_ctype: ""
+postgres_template: ""
+postgres_backup_cron_day: "*/1"
+postgres_backup_cron_hour: "4"
+postgres_backup_cron_minute: "0"
+postgres_native_db_backup_targets: []
+  # - name: k3s
+  #   version_string: test_version
+postgres_users: [] # - name: NAME
+postgres_roles: []
+  # - name: NAME
+  #   members:
+  #     - skaoidas
+postgres_role_memberships: []
+  # - name: NAME
+  #   members:
+  #     - skaoidas
+postgres_databases: []
+  # - name: NAME
+  #   owner: NAME
+
+# https://www.instaclustr.com/education/postgresql/postgresql-tuning-10-things-you-can-do-to-improve-db-performance/
+# https://medium.com/@ankush.thavali/postgresql-performance-tuning-a-practical-guide-for-dbas-39d1ad62f64b
+# https://www.mydbops.com/blog/postgresql-parameter-tuning-best-practices
+
+# max_worker_processes: set this to the total number of CPU cores available on your system, since the PostgreSQL defaults otherwise underutilize a multi-core machine.
+postgres_max_worker_processes: 8
+postgres_max_parallel_workers: 8
+postgres_max_parallel_workers_per_gather: 2 # max_parallel_workers_per_gather: sets the number of workers that can cooperate on a single parallel query; set it to roughly 25% to 50% of your core count
+
+# shared_buffers: dedicated memory PostgreSQL uses for caching data; set to 25% to 40% of total system RAM.
+# Start with LEAST(RAM/2, 10GB). This defines PostgreSQL’s cache size — balancing it with OS caching ensures stable performance.
+# 25–40% of RAM
+postgres_shared_buffers: 150MB
+
+# work_mem: memory for internal sort operations and hash tables; start between 4MB and 16MB, since it is allocated per query operation.
+# Use ((Total RAM - shared_buffers)/(16 × CPU cores)) as a base. Too high a value can exhaust memory since multiple nodes may use it per query.
+# - 16MB–64MB (OLTP), 128MB+ (OLAP)
+postgres_work_mem: 4MB
+
+# effective_cache_size: tells the planner how much total memory is available for disk caching; set to 50% to 75% of total system RAM.
+# Estimate available cache memory — typically 0.75 × total RAM. Helps PostgreSQL make smarter planner decisions.
+postgres_effective_cache_size: 300MB
+
+# Planner cost for disk reads. 1.1 for SSDs
+postgres_random_page_cost: 1.1

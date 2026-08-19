@@ -1,0 +1,82 @@
+- name: Install PGBackRest | Debian
+  when: ansible_facts['os_family']|lower == 'debian'
+  become: true
+  ansible.builtin.apt:
+    pkg:
+      - pgbackrest
+
+- name: Copy pgbackrest.conf
+  become: true
+  ansible.builtin.template:
+    src: pgbackrest.conf
+    dest: /etc/pgbackrest.conf
+    owner: postgres
+    group: postgres
+    mode: u=rw,g=r,o=
+  notify: Create pgbackrest Stanza
+
+- name: Template Sunday Timer
+  become: true
+  ansible.builtin.template:
+    src: pgbackrest.timer
+    dest: /etc/systemd/system/pgbackrest-sunday.timer
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=rx
+  vars:
+    timer_description: PGBackRest - Full Postgres backup
+    service_name: "pgbackrest-sunday"
+    day_of_week: "Sun"
+
+- name: Template Sunday Service
+  become: true
+  ansible.builtin.template:
+    src: pgbackrest.service
+    dest: /etc/systemd/system/pgbackrest-sunday.service
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=rx
+  vars:
+    service_description: PGBackRest - Full Postgres backup
+    backup_command: "pgbackrest --type=full --stanza=main backup"
+
+- name: Enable Sunday Timer
+  become: true
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+    name: pgbackrest-sunday.timer
+    state: started
+    enabled: true
+
+- name: Template Mid-Week Timer
+  become: true
+  ansible.builtin.template:
+    src: pgbackrest.timer
+    dest: /etc/systemd/system/pgbackrest-midweek.timer
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    timer_description: PGBackRest - Differential Postgres backup
+    service_name: "pgbackrest-midweek"
+    day_of_week: "Mon-Sat"
+
+- name: Template Mid-Week Service
+  become: true
+  ansible.builtin.template:
+    src: pgbackrest.service
+    dest: /etc/systemd/system/pgbackrest-midweek.service
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    service_description: PGBackRest - Differential Postgres backup
+    backup_command: "pgbackrest --type=diff --stanza=main backup"
+
+- name: Enable Mid-Week Timer
+  become: true
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+    name: pgbackrest-midweek.timer
+    state: started
+    enabled: true

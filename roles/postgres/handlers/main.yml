@@ -1,0 +1,14 @@
+- name: Restart Postgres
+  become: true
+  ansible.builtin.service:
+    name: postgresql
+    state: restarted
+
+- name: Create pgbackrest Stanza
+  become: true
+  become_user: postgres
+  ansible.builtin.shell: pgbackrest stanza-create --stanza=main
+
+- name: SIGHUP Postgres
+  become: true
+  ansible.builtin.shell: kill -HUP $(cat /var/run/postgresql/{{ postgres_info.version.major }}-main.pid)
