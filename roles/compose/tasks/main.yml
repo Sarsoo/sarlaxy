@@ -1,0 +1,81 @@
+- name: User info
+  ansible.builtin.user:
+    name: "{{ compose_owner | default(ansible_user_id, true) }}"
+  register: compose_user_info
+
+- name: Backup User info
+  ansible.builtin.user:
+    name: "{{ compose_backup_user | default(ansible_user_id, true) }}"
+  register: compose_backup_user_info
+
+- name: Create config
+  ansible.builtin.file:
+    path: "{{ compose_user_info.home }}/{{ compose_ws }}"
+    state: directory
+    mode: "0755"
+
+- name: Create backup
+  become: true
+  ansible.builtin.file:
+    path: "{{ compose_user_info.home }}/{{ compose_ws }}/backup"
+    owner: "{{ compose_backup_user_info.name }}"
+    group: "{{ compose_backup_user_info.group }}"
+    state: directory
+    mode: "0755"
+
+- name: Create data dirs
+  become: true
+  ansible.builtin.file:
+    path: "{{ compose_user_info.home }}/{{ compose_ws }}/{{ item.path }}"
+    owner: "{{ item.owner | default(compose_owner) }}"
+    group: "{{ item.group | default(compose_owner) }}"
+    state: directory
+    mode: "{{ item.mode | default('0750') }}"
+  loop: "{{ compose_data_dirs }}"
+
+- name: Create env files
+  become: true
+  ansible.builtin.copy:
+    content: "{{ item.value }}"
+    dest: "{{ compose_user_info.home }}/{{ compose_ws }}/{{ item.name }}"
+    owner: "{{ item.owner | default(compose_owner) }}"
+    group: "{{ item.group | default(compose_owner) }}"
+    mode: "{{ item.mode | default('0750') }}"
+  loop: "{{ compose_env_files }}"
+
+- name: Copy Service Spec
+  ansible.builtin.copy:
+    content: "{{ compose_file }}"
+    dest: "{{ compose_user_info.home }}/{{ compose_ws }}/docker-compose.yml"
+    owner: "{{ compose_owner }}"
+    group: "{{ compose_owner }}"
+    mode: u=rw,g=r,o=
+
+- name: Stand up service
+  community.docker.docker_compose_v2:
+    project_src: "{{ compose_user_info.home }}/{{ compose_ws }}"
+    pull: "{{ docker_pull_policy }}"
+    state: "{{ docker_state }}"
+    remove_orphans: true
+
+- name: Init backup
+  when: compose_backup_script | length > 0
+  ansible.builtin.include_role:
+    name: sarsoo.infra.backup_script_cron
+  vars:
+    backup_script_cron_name: "{{ compose_name }}"
+    backup_script_cron_backup_script_content: "{{ compose_backup_script }}"
+    backup_script_cron_backup_script_path: "{{ compose_user_info.home }}/{{ compose_ws }}"
+    backup_script_cron_backup_script_file_name: "backup.sh"
+
+    backup_script_cron_backup_day_period: "{{ compose_backup_day_period }}"
+    backup_script_cron_backup_hour: "{{ compose_backup_hour }}"
+    backup_script_cron_backup_minute: "{{ compose_backup_minute }}"
+
+- name: Init nginx
+  when: (compose_nginx_site_content | length > 0) and ('nginx' in group_names)
+  ansible.builtin.include_role:
+    name: sarsoo.infra.nginx_site
+  vars:
+    nginx_site_name: "{{ compose_name }}"
+    nginx_site_config_content: "{{ compose_nginx_site_content }}"

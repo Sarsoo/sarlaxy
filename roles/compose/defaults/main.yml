@@ -1,0 +1,28 @@
+---
+compose_owner: ""
+compose_backup_user: ""
+# compose_ws: '' # explicitly don't specify a default so we get an error
+compose_data_dirs: []
+# - path: ''
+#   owner: ''
+#   group: ''
+#   mode: ''
+compose_env_files: []
+# - name: ''
+#   value: ''
+#   owner: ''
+#   group: ''
+#   mode: ''
+
+# compose_file: '' # explicitly don't specify a default so we get an error
+
+compose_backup_script: ""
+compose_backup_type: "cron"
+
+# DayOfWeek Year-Month-Day Hour:Minute:Second
+compose_backup_day_period: "2"
+compose_backup_hour: "4"
+compose_backup_minute: "0"
+compose_backup_second: "0"
+
+compose_nginx_site_content: ""
