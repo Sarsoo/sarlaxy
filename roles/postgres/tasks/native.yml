@@ -60,6 +60,9 @@
     mode: u=rw,g=r,o=
   notify: SIGHUP Postgres
 
+- name: Flush handlers
+  meta: flush_handlers
+
 - name: Add backup user
   become: true
   become_user: postgres
