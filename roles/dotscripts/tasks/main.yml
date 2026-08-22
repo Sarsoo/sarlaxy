@@ -1,11 +1,11 @@
 - name: User info
   ansible.builtin.user:
-    name: "{{ dotscripts_user | default(ansible_user_id, true) }}"
+    name: "{{ dotscripts_user | default(ansible_user, true) }}"
   register: dotscripts_user_info
 
 - name: Set User Variables
   ansible.builtin.set_fact:
-    dotscripts_user_diff: "{{ dotscripts_user_info.name != ansible_user_id }}"
+    dotscripts_user_diff: "{{ dotscripts_user_info.name != ansible_user }}"
 
 - name: Add scripts repo to safe directories
   become: "{{ dotscripts_user_diff }}"

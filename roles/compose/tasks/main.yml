@@ -1,11 +1,11 @@
 - name: User info
   ansible.builtin.user:
-    name: "{{ compose_owner | default(ansible_user_id, true) }}"
+    name: "{{ compose_owner | default(ansible_user, true) }}"
   register: compose_user_info
 
 - name: Backup User info
   ansible.builtin.user:
-    name: "{{ compose_backup_user | default(ansible_user_id, true) }}"
+    name: "{{ compose_backup_user | default(ansible_user, true) }}"
   register: compose_backup_user_info
 
 - name: Create config

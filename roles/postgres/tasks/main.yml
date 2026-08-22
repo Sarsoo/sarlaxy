@@ -1,12 +1,12 @@
 ---
 - name: User info
   ansible.builtin.user:
-    name: "{{ postgres_owner | default(ansible_user_id, true) }}"
+    name: "{{ postgres_owner | default(ansible_user, true) }}"
   register: postgres_owner_info
 
 - name: Backup User info
   ansible.builtin.user:
-    name: "{{ postgres_backup_user | default(ansible_user_id, true) }}"
+    name: "{{ postgres_backup_user | default(ansible_user, true) }}"
   register: postgres_backup_user_info
 
 - name: Ensure Postgres | Native
