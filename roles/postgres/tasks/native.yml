@@ -33,6 +33,13 @@
     pkg:
       - postgresql-{{ postgres_info.version.major }}-pgvector
 
+- name: Install pg_cron | Debian
+  when: ansible_facts['os_family']|lower == 'debian' and postgres_cron
+  become: true
+  ansible.builtin.apt:
+    pkg:
+      - postgresql-{{ postgres_info.version.major }}-cron
+
 - name: Copy postgresql.conf
   become: true
   ansible.builtin.template:
@@ -129,6 +136,16 @@
     login_db: "{{ item }}"
     state: present
   loop: "{{ postgres_pgvector_databases }}"
+
+- name: Add pg_cron Extension
+  become: true
+  become_user: postgres
+  when: postgres_cron
+  community.postgresql.postgresql_ext:
+    name: pg_cron
+    login_db: "{{ item }}"
+    state: present
+  loop: "{{ postgres_cron_databases }}"
 
 - name: Configure Backup
   when: postgres_pgdump

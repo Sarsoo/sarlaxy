@@ -14,8 +14,15 @@ postgres_pgbackrest_retention_full: 4
 postgres_pgbackrest_retention_diff: 14
 postgres_pgbackrest_retention_archive_type: diff
 postgres_pgbackrest_retention_archive: 2
+
 postgres_pgvector: false
 postgres_pgvector_databases: []
+
+postgres_cron: false
+postgres_cron_databases:
+  - postgres
+postgres_shared_preload_libraries: []
+
 postgres_encoding: ""
 postgres_lc_collate: ""
 postgres_lc_ctype: ""
