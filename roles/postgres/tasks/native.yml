@@ -63,7 +63,7 @@
 - name: Add backup user
   become: true
   become_user: postgres
-  when: postgres_backup_user
+  when: postgres_backup_user is defined and postgres_backup_user != ""
   community.postgresql.postgresql_user:
     name: "{{ postgres_backup_user }}"
     state: present
@@ -98,7 +98,7 @@
 
 - name: Grant role memberships
   become: true
-  become_user: postgres is defined and postgres != ""
+  become_user: postgres
   community.postgresql.postgresql_membership:
     group: "{{ item.name }}"
     target_roles: "{{ item.members }}"
@@ -108,7 +108,7 @@
 - name: Grant backup user memberships
   become: true
   become_user: postgres
-  when: postgres_backup_user is defined and postgres != ""
+  when: postgres_backup_user is defined and postgres_backup_user != ""
   community.postgresql.postgresql_membership:
     group: "{{ item.name }}"
     target_roles: "{{ postgres_backup_user }}"
