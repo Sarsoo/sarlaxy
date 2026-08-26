@@ -1,9 +1,11 @@
 - name: User info
+  become: true
   ansible.builtin.user:
     name: "{{ compose_owner | default(ansible_user, true) }}"
   register: compose_user_info
 
 - name: Backup User info
+  become: true
   ansible.builtin.user:
     name: "{{ compose_backup_user | default(ansible_user, true) }}"
   register: compose_backup_user_info
