@@ -75,7 +75,7 @@
 - name: Init nginx
   when: (compose_nginx_site_content | length > 0) and ('nginx' in group_names)
   ansible.builtin.include_role:
-    name: sarsoo.infra.nginx_site
+    name: nginx_site
   vars:
     nginx_site_name: "{{ compose_name }}"
     nginx_site_config_content: "{{ compose_nginx_site_content }}"
