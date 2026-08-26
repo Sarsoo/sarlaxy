@@ -27,8 +27,8 @@
   become: true
   ansible.builtin.file:
     path: "{{ compose_user_info.home }}/{{ compose_ws }}/{{ item.path }}"
-    owner: "{{ item.owner | default(compose_owner) }}"
-    group: "{{ item.group | default(compose_owner) }}"
+    owner: "{{ compose_user_info.name }}"
+    group: "{{ compose_user_info.group }}"
     state: directory
     mode: "{{ item.mode | default('0750') }}"
   loop: "{{ compose_data_dirs }}"
@@ -38,8 +38,8 @@
   ansible.builtin.copy:
     content: "{{ item.value }}"
     dest: "{{ compose_user_info.home }}/{{ compose_ws }}/{{ item.name }}"
-    owner: "{{ item.owner | default(compose_owner) }}"
-    group: "{{ item.group | default(compose_owner) }}"
+    owner: "{{ compose_user_info.name }}"
+    group: "{{ compose_user_info.group }}"
     mode: "{{ item.mode | default('0750') }}"
   loop: "{{ compose_env_files }}"
 
@@ -47,8 +47,8 @@
   ansible.builtin.copy:
     content: "{{ compose_file }}"
     dest: "{{ compose_user_info.home }}/{{ compose_ws }}/docker-compose.yml"
-    owner: "{{ compose_owner }}"
-    group: "{{ compose_owner }}"
+    owner: "{{ compose_user_info.name }}"
+    group: "{{ compose_user_info.group }}"
     mode: u=rw,g=r,o=
 
 - name: Stand up service
