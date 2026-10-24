@@ -8,7 +8,7 @@ postgres_owner: ""
 postgres_backup_user: ""
 postgres_allowed_cidrs: []
 
-postgres_pgdump: true
+postgres_pgdump: false
 postgres_pgbackrest: true
 postgres_pgbackrest_retention_full: 4
 postgres_pgbackrest_retention_diff: 14
