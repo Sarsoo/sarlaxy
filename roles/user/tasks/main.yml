@@ -69,7 +69,7 @@
     exclusive: true
 
 - name: Check for loginctl
-  ansible.builtin.command: command -v loginctl
+  ansible.builtin.shell: command -v loginctl
   register: user_loginctl_check
   failed_when: user_loginctl_check.rc != 0 and user_linger
   changed_when: false
@@ -80,18 +80,18 @@
   block:
     - name: Enable Linger for user {{ user_name }}
       when: user_linger
-      ansible.builtin.command:
+      ansible.builtin.shell:
         argv:
-          - /usr/bin/loginctl
+          - loginctl
           - enable-linger
           - "{{ user_name }}"
         creates: "/var/lib/systemd/linger/{{ user_name }}"
 
     - name: Disable Linger for user {{ user_name }}
       when: not user_linger
-      ansible.builtin.command:
+      ansible.builtin.shell:
         argv:
-          - /usr/bin/loginctl
+          - loginctl
           - disable-linger
           - "{{ user_name }}"
         removes: "/var/lib/systemd/linger/{{ user_name }}"
