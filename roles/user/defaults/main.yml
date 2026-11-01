@@ -5,3 +5,4 @@ user_include_default_keys: true
 user_authorised_keys: []
 user_ensure_bash: false
 user_linger: false
+user_init_dotfiles: true

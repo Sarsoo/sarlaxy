@@ -1,0 +1,21 @@
+
+- name: Add stack user
+  become: true
+  ansible.builtin.import_role:
+    name: sarsoo.infra.user
+  vars:
+    user_name: "{{ podman_stack_user_user_name }}"
+    user_ensure_bash: true
+    user_passwordless: true
+    user_include_default_keys: false
+    user_authorised_keys: []
+    user_linger: true
+
+- name: Ensure quadlet dir exists
+  become: true
+  file:
+    path: "/home/{{ podman_stack_user_user_name }}/.config/containers/systemd"
+    state: directory
+    owner: "{{ podman_stack_user_user_name }}"
+    group: "{{ podman_stack_user_user_name }}"
+    mode: '755'

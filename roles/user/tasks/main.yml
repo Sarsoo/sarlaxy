@@ -61,6 +61,7 @@
     createhome: true
 
 - name: Set SSH
+  when: __authorised_keys | length > 0
   ansible.posix.authorized_key:
     user: "{{ user_name }}"
     key: "{{ __authorised_keys | join('\n') }}"
@@ -96,6 +97,7 @@
         removes: "/var/lib/systemd/linger/{{ user_name }}"
 
 - name: Init dotfiles & scripts
+  when: user_init_dotfiles
   ansible.builtin.import_role:
     name: sarsoo.infra.dotscripts
   vars:
