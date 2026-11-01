@@ -71,7 +71,7 @@
 - name: Check for loginctl
   ansible.builtin.command: command -v loginctl
   register: user_loginctl_check
-  failed_when: false
+  failed_when: user_loginctl_check.rc != 0 and user_linger
   changed_when: false
 
 - name: Set linger
