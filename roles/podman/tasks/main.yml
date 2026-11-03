@@ -4,6 +4,7 @@
   ansible.builtin.apt:
     pkg:
       - podman
+      - systemd-container
 
 - name: Install Podman | Fedora
   when: ansible_facts['os_family']|lower == 'redhat'
@@ -11,6 +12,7 @@
   ansible.builtin.dnf:
     pkg:
       - podman
+      - systemd-container
 
 - name: Install Podman | Alpine
   when: ansible_facts['os_family']|lower == 'alpine'
